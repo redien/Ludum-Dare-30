@@ -1677,6 +1677,7 @@ GameObject:
   - 4: {fileID: 737981553}
   - 114: {fileID: 737981552}
   - 114: {fileID: 737981554}
+  - 148: {fileID: 737981555}
   m_Layer: 0
   m_Name: Global
   m_TagString: Untagged
@@ -1718,8 +1719,80 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 531d907c47aa5c24380bf475b3034de5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerPrefab: {fileID: 0}
+  version: version 1
   settings: {fileID: 0}
+  serverNameStyle:
+    m_Name: 
+    m_Normal:
+      m_Background: {fileID: 0}
+      m_TextColor: {r: 1, g: 1, b: 1, a: 1}
+    m_Hover:
+      m_Background: {fileID: 0}
+      m_TextColor: {r: 0, g: 0, b: 0, a: 1}
+    m_Active:
+      m_Background: {fileID: 0}
+      m_TextColor: {r: 0, g: 0, b: 0, a: 1}
+    m_Focused:
+      m_Background: {fileID: 0}
+      m_TextColor: {r: 0, g: 0, b: 0, a: 1}
+    m_OnNormal:
+      m_Background: {fileID: 0}
+      m_TextColor: {r: 0, g: 0, b: 0, a: 1}
+    m_OnHover:
+      m_Background: {fileID: 0}
+      m_TextColor: {r: 0, g: 0, b: 0, a: 1}
+    m_OnActive:
+      m_Background: {fileID: 0}
+      m_TextColor: {r: 0, g: 0, b: 0, a: 1}
+    m_OnFocused:
+      m_Background: {fileID: 0}
+      m_TextColor: {r: 0, g: 0, b: 0, a: 1}
+    m_Border:
+      m_Left: 0
+      m_Right: 0
+      m_Top: 0
+      m_Bottom: 0
+    m_Margin:
+      m_Left: 0
+      m_Right: 0
+      m_Top: 0
+      m_Bottom: 0
+    m_Padding:
+      m_Left: 0
+      m_Right: 0
+      m_Top: 0
+      m_Bottom: 0
+    m_Overflow:
+      m_Left: 0
+      m_Right: 0
+      m_Top: 0
+      m_Bottom: 0
+    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+    m_FontSize: 26
+    m_FontStyle: 1
+    m_Alignment: 0
+    m_WordWrap: 0
+    m_RichText: 1
+    m_TextClipping: 0
+    m_ImagePosition: 0
+    m_ContentOffset: {x: 10, y: 10}
+    m_FixedWidth: 0
+    m_FixedHeight: 0
+    m_StretchWidth: 1
+    m_StretchHeight: 0
+  serverName: 
+--- !u!148 &737981555
+NetworkView:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 737981551}
+  m_Enabled: 1
+  m_StateSynchronization: 1
+  m_Observed: {fileID: 0}
+  m_ViewID:
+    m_ID: 2
+    m_Type: 1
 --- !u!1 &752569971
 GameObject:
   m_ObjectHideFlags: 0
@@ -2821,6 +2894,7 @@ GameObject:
   - 82: {fileID: 1514898199}
   - 114: {fileID: 1514898198}
   - 114: {fileID: 1514898197}
+  - 148: {fileID: 1514898200}
   m_Layer: 0
   m_Name: Totem
   m_TagString: Untagged
@@ -2929,6 +3003,18 @@ AudioSource:
       tangentMode: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
+--- !u!148 &1514898200
+NetworkView:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1514898195}
+  m_Enabled: 1
+  m_StateSynchronization: 1
+  m_Observed: {fileID: 1514898196}
+  m_ViewID:
+    m_ID: 1
+    m_Type: 1
 --- !u!1 &1591435974
 GameObject:
   m_ObjectHideFlags: 0

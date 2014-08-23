@@ -26,8 +26,15 @@ public class Totem : MonoBehaviour, InteractiveObject {
 	public void Interact() {
 		audio.Play();
 		SetState(!state);
+		networkView.RPC("SetRemoteState", RPCMode.Others, (state ? 1 : 0));
 	}
-	
+
+	[RPC]
+	void SetRemoteState(int state) {
+		audio.Play();
+		SetState(state != 0);
+	}
+
 	void SetState(bool state) {
 		this.state = state;
 		
