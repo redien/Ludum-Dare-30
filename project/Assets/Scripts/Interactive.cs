@@ -4,7 +4,11 @@ using System.Collections;
 public class Interactive : MonoBehaviour {
 	public InteractiveObject interactiveObject;
 	
-	public void Interact() {
-		interactiveObject.Interact();
+	public void Interact(Transform interacter) {
+		interactiveObject.Interact(interacter);
+	}
+	
+	public bool CanInteract(Transform interacter) {
+		return interactiveObject.CanInteract(interacter);
 	}
 }

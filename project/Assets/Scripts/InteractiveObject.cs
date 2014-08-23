@@ -2,5 +2,6 @@
 using System.Collections;
 
 public interface InteractiveObject {
-	void Interact();
+	void Interact(Transform interacter);
+	bool CanInteract(Transform interacter);
 }

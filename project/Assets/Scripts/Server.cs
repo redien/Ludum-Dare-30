@@ -10,22 +10,23 @@ public class Server : MonoBehaviour {
 	
 	[HideInInspector]
 	public string serverName;
+
+	PhotonView photonView;
 	
-	class Player {
-		public NetworkPlayer networkPlayer;
+	void Awake () {
+		photonView = GetComponent<PhotonView>();
 	}
-
-	Player[] players = new Player[32];
-
+	
 	// Use this for initialization
 	void Start () {
 		settings = GameObject.Find("Global").GetComponent<Settings>();
 		
 		// Pause game when we are doing menu stuff...
 		settings.Pause();
-		
+
 		// Start testing connection
-		Network.TestConnection();
+		PhotonNetwork.logLevel = PhotonLogLevel.Full;
+		PhotonNetwork.ConnectUsingSettings("0.1");
 	}
 	
 	// Update is called once per frame
@@ -34,8 +35,7 @@ public class Server : MonoBehaviour {
 
 	enum NetworkingState {
 		SelectRole,
-		DeterminingConnection,
-		WaitingForConnection,
+		WaitingForMaster,
 		InputServerName,
 		ConnectingToServer,
 		Connected
@@ -46,134 +46,68 @@ public class Server : MonoBehaviour {
 	string[] randomAdjectives = {
 		"proper", "speedy", "working", "sweet", "amazing", "cool", "special",
 		"magical", "enchanting", "busy", "cute", "basic", "slow", "frantic",
-		"odd", "even"
+		"odd", "even", "personal", "light", "heavy", "strong", "basic", "cold",
+		"warm", "super", "tasty", "personal", "crazy", "tiny", "tall", "small"
 	};
 	
 	string[] randomNouns = {
 		"cat", "lizard", "dog", "panda", "game", "pants", "shoe", "tree",
 		"bee", "music", "car", "puppy", "craft", "saga", "king", "candy",
-		"space"
+		"space", "potato", "book", "paper", "beam", "castle", "rock", "box",
+		"level", "bar", "cookie", "bread", "soup", "pizza", "milk", "potion",
+		"sword", "hammer", "cup"
 	};
 
 	string GenerateRandomName() {
 		return randomAdjectives[Random.Range(0, randomAdjectives.Length - 1)] + " " + randomNouns[Random.Range(0, randomNouns.Length - 1)];
 	}
 	
-	string serverToJoin;
+	string serverToJoin = "";
+	string text = "";
+	string lastText = "";
 	
 	void OnGUI() {
-		if (networkState == NetworkingState.SelectRole) {
-			if (GUI.Button(new Rect(50, 50, 100, 75), "Host a game")) {
-				networkState = NetworkingState.DeterminingConnection;
-			}
-
-			if (GUI.Button(new Rect(200, 50, 200, 75), "Join another game")) {
-				networkState = NetworkingState.InputServerName;
-				MasterServer.ClearHostList();
-				MasterServer.RequestHostList("jesosk_LD30");
-			}
+		if (PhotonNetwork.connectionStateDetailed.ToString() != lastText) {
+			text += PhotonNetwork.connectionStateDetailed.ToString() + ", ";
+			lastText = PhotonNetwork.connectionStateDetailed.ToString();
 		}
 
-		if (networkState == NetworkingState.DeterminingConnection) {
-			var connectionTestResult = Network.TestConnection();
+		GUILayout.Label(text);
+		
+		if (!PhotonNetwork.connected) {
+	    } else {
+			PhotonNetwork.GetRoomList();
 			
-			if (connectionTestResult != ConnectionTesterStatus.Undetermined) {
-				Debug.Log(connectionTestResult.ToString());
-				
-				var useNat = !Network.HavePublicAddress();
-				Network.InitializeServer(32, 25000, useNat);
-				serverName = GenerateRandomName();
-				MasterServer.RegisterHost("jesosk_LD30", serverName, version);
-				networkState = NetworkingState.WaitingForConnection;
-				settings.Resume();
+			if (networkState == NetworkingState.SelectRole) {
+				if (GUI.Button(new Rect(50, 50, 100, 75), "Host a game")) {
+					serverName = GenerateRandomName();
+					PhotonNetwork.CreateRoom(serverName);
+					settings.Resume();
+					networkState = NetworkingState.Connected;
+				}
+	
+				if (GUI.Button(new Rect(200, 50, 200, 75), "Join another game")) {
+					networkState = NetworkingState.InputServerName;
+				}
 			}
-		}
-
-					
-		if (networkState == NetworkingState.InputServerName) {
-			var hosts = MasterServer.PollHostList();
-			
-			if (hosts.Length > 0) {
+	
+			if (networkState == NetworkingState.InputServerName) {
 				serverToJoin = GUI.TextField(new Rect(10, 50, 180, 75), serverToJoin);
 				
 				if (GUI.Button(new Rect(200, 50, 200, 75), "Join")) {
-					HostData server = null;
-					foreach (var host in hosts) {
-						if (host.gameName == serverToJoin && host.comment == version) {
-							server = host;
-						}
-					}
-					
-					if (server != null) {
-						var error = Network.Connect(server);
-						networkState = NetworkingState.ConnectingToServer;
-						if (error != NetworkConnectionError.NoError) {
-							Debug.Log("Connection error: " + error.ToString());
-						}
-					}
+					PhotonNetwork.JoinRoom(serverToJoin);
+					serverName = serverToJoin;
+					networkState = NetworkingState.ConnectingToServer;
 				}
-			} else {
-				GUI.Label(new Rect(10, 10, 300, 100), "Looking for games...", serverNameStyle);
 			}
-		}
-		
-		if (networkState == NetworkingState.WaitingForConnection || networkState == NetworkingState.Connected) {
-			GUI.Label(new Rect(10, 10, 300, 100), serverName, serverNameStyle);
-		}
-	}
-
-	int GetAvailablePlayerSlot() {
-		for (var i = 0; i < players.Length; ++i) {
-			if (players[i] == null) {
-				return i;
-			}
-		}
-		
-		return -1;
-	}
-	
-	int GetPlayerIdFromNetworkPlayer(NetworkPlayer networkPlayer) {
-		for (var i = 0; i < players.Length; ++i) {
-			if (players[i] != null && players[i].networkPlayer == networkPlayer) {
-				return i;
-			}
-		}
-		
-		return -1;
-	}
-	
-	void OnPlayerDisconnected(NetworkPlayer networkPlayer) {
-        Debug.Log("Player " + networkPlayer.ToString() + " disconnected");
-		
-		var playerId = GetPlayerIdFromNetworkPlayer(networkPlayer);
-		if (playerId != -1) {
-			players[playerId] = null;
-		}
-    }
-
-	void OnPlayerConnected(NetworkPlayer networkPlayer) {
-        var playerId = GetAvailablePlayerSlot();
-		
-		Debug.Log("Player " + networkPlayer.ToString() + " connected");
-		
-		if (playerId != -1) {
-			var player = new Player();
-			player.networkPlayer = networkPlayer;
-			players[playerId] = player;
 			
-			networkView.RPC("SetServerName", networkPlayer, serverName);
-		} else {
-			Debug.Log("Server full");
-			Network.CloseConnection(networkPlayer, true);
+			if (networkState == NetworkingState.Connected) {
+				GUI.Label(new Rect(10, 10, 300, 100), serverName, serverNameStyle);
+			}
 		}
-    }
-	
-	[RPC]
-	void SetServerName(string name) {
-		serverName = name;
 	}
 	
-	void OnConnectedToServer() {
+	void OnJoinedRoom() {
 		settings.Resume();
 		networkState = NetworkingState.Connected;
 	}

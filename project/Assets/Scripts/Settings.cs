@@ -6,10 +6,10 @@ public class Settings : MonoBehaviour {
 	public GameObject player;
 	
 	// Use this for initialization
-	void Start () {
+	void Awake () {
 		Application.runInBackground = true;
 	}
-	
+
 	// Update is called once per frame
 	void Update () {
 	

@@ -5,10 +5,15 @@ public class Totem : MonoBehaviour, InteractiveObject {
 	
 	public GameObject disabledObject;
 	public GameObject enabledObject;
+	public float interactDistance = 10.0f;
 	
+	PhotonView photonView;
+
 	void Awake () {
 		var interactive = GetComponent<Interactive>();
 		interactive.interactiveObject = this;
+		
+		photonView = GetComponent<PhotonView>();
 	}
 	
 	bool state = false;
@@ -23,12 +28,18 @@ public class Totem : MonoBehaviour, InteractiveObject {
 	
 	}
 	
-	public void Interact() {
-		audio.Play();
-		SetState(!state);
-		networkView.RPC("SetRemoteState", RPCMode.Others, (state ? 1 : 0));
+	public void Interact(Transform interacter) {
+		if (CanInteract(interacter)) {
+			audio.Play();
+			SetState(!state);
+			photonView.RPC("SetRemoteState", PhotonTargets.Others, (state ? 1 : 0));
+		}
 	}
-
+	
+	public bool CanInteract(Transform interacter) {
+		return Vector3.Distance(interacter.position, transform.position) < interactDistance;
+	}
+	
 	[RPC]
 	void SetRemoteState(int state) {
 		audio.Play();
@@ -44,6 +55,12 @@ public class Totem : MonoBehaviour, InteractiveObject {
 		} else {
 			disabledObject.SetActive(true);
 			enabledObject.SetActive(false);
+		}
+	}
+
+	void OnPhotonPlayerConnected(PhotonPlayer player) {
+		if (PhotonNetwork.isMasterClient) {
+			photonView.RPC("SetRemoteState", player, (state ? 1 : 0));
 		}
 	}
 }

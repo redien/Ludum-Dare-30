@@ -33,11 +33,19 @@ public class Interaction : MonoBehaviour {
 			
 			debugPoint.position = hitInfo.point;
 			
-			if (Input.GetMouseButtonDown(0)) {
-				var interactive = FindInteractiveIfExists(hitGameObject.transform);
-				if (interactive) {
-					interactive.Interact();
+			var interactive = FindInteractiveIfExists(hitGameObject.transform);
+			if (interactive) {
+				if (interactive.CanInteract(transform)) {
+					debugPoint.gameObject.SetActive(true);
+				} else {
+					debugPoint.gameObject.SetActive(false);
 				}
+				
+				if (Input.GetMouseButtonDown(0)) {
+					interactive.Interact(transform);
+				}
+			} else {
+				debugPoint.gameObject.SetActive(false);
 			}
 		}
 	}
