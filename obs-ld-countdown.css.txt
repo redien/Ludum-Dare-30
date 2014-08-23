@@ -1,0 +1,38 @@
+::-webkit-scrollbar {
+  visibility: hidden;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  background: rgba(0, 0, 0, 0) url("http://upload.wikimedia.org/wikipedia/commons/8/8c/Transparent.png");
+}
+
+body>* {
+  display: none;
+}
+
+body>#page {
+  display: block;
+}
+
+body>#page>* {
+  display:none;
+}
+
+body>#page>#compo-status {
+  display: block;
+}
+
+body>#page>#compo-status>p {
+  display: none;
+}
+
+body>#page>#compo-status>center>* {
+  display: none;
+}
+
+body>#page>#compo-status>center>.fergcorp_countdownTimer_event_li {
+  display: block;
+}
+
