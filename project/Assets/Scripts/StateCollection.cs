@@ -95,7 +95,7 @@ public class StateCollection
 		List<State> generatedStates = new List<State>();
 		
 		switch (level) {
-		case 4:
+		case 0:
 			{
 				State state = new State();
 				generatedStates.Add(state);
@@ -142,7 +142,7 @@ public class StateCollection
 			}
 		break;
 
-		case 0:
+		case 4:
 			{
 				State state = new State();
 				generatedStates.Add(state);

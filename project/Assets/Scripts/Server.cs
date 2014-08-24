@@ -37,8 +37,10 @@ public class Server : MonoBehaviour {
 	enum NetworkingState {
 		SelectRole,
 		WaitingForMaster,
+		NewServerError,
 		InputServerName,
 		ConnectingToServer,
+		ConnectionError,
 		Connected
 	}
 	
@@ -69,44 +71,92 @@ public class Server : MonoBehaviour {
 	string lastText = "";
 	
 	void OnGUI() {
+		/*
 		if (PhotonNetwork.connectionStateDetailed.ToString() != lastText) {
 			text += PhotonNetwork.connectionStateDetailed.ToString() + ", ";
 			lastText = PhotonNetwork.connectionStateDetailed.ToString();
 		}
 
 		GUILayout.Label(text);
-		
+		*/
+
 		if (!PhotonNetwork.connected) {
 	    } else {
 			PhotonNetwork.GetRoomList();
 			
+			GUILayout.BeginArea(new Rect (Screen.width/2 - 200, Screen.height/2 - 200, 400, 400));
+			
 			if (networkState == NetworkingState.SelectRole) {
-				if (GUI.Button(new Rect(50, 50, 100, 75), "Host a game")) {
+				GUILayout.BeginHorizontal();
+				if (GUILayout.Button("Host a game", GUILayout.MinWidth(100), GUILayout.MinHeight(50))) {
 					serverName = GenerateRandomName();
 					PhotonNetwork.CreateRoom(serverName);
 				}
 	
-				if (GUI.Button(new Rect(200, 50, 200, 75), "Join another game")) {
+				if (GUILayout.Button("Join another game", GUILayout.MinWidth(150), GUILayout.MinHeight(50))) {
 					networkState = NetworkingState.InputServerName;
 				}
+				GUILayout.EndHorizontal();
 			}
 
 			if (networkState == NetworkingState.InputServerName) {
-				serverToJoin = GUI.TextField(new Rect(10, 50, 180, 75), serverToJoin);
-				
-				if (GUI.Button(new Rect(200, 50, 200, 75), "Join")) {
-					PhotonNetwork.JoinRoom(serverToJoin);
-					serverName = serverToJoin;
-					networkState = NetworkingState.ConnectingToServer;
+				GUILayout.BeginVertical();
+				GUI.SetNextControlName("ServerNameBox");
+				serverToJoin = GUILayout.TextField(serverToJoin, serverNameStyle, GUILayout.MinWidth(300), GUILayout.MinHeight(50));
+				GUI.FocusControl("ServerNameBox");
+
+				GUILayout.BeginHorizontal();
+				if (serverToJoin.Length > 0) {
+					if (GUILayout.Button("Join", GUILayout.MinWidth(100), GUILayout.MinHeight(50))) {
+						PhotonNetwork.JoinRoom(serverToJoin);
+						serverName = serverToJoin;
+						networkState = NetworkingState.ConnectingToServer;
+					}
+				}
+
+				if (GUILayout.Button("Back", GUILayout.MinWidth(100), GUILayout.MinHeight(50))) {
+					networkState = NetworkingState.SelectRole;
+				}
+				GUILayout.EndHorizontal();
+				GUILayout.EndVertical();
+			}
+
+			if (networkState == NetworkingState.ConnectingToServer) {
+				GUILayout.Label("Connecting to game...", serverNameStyle);
+			}
+
+			if (networkState == NetworkingState.ConnectionError || networkState == NetworkingState.NewServerError) {
+				GUILayout.Label("Error: " + errorMessage, serverNameStyle);
+				GUILayout.Space(10);
+				if (GUILayout.Button("Try again", GUILayout.MinWidth(100), GUILayout.MinHeight(50))) {
+					if (networkState == NetworkingState.NewServerError) {
+						networkState = NetworkingState.SelectRole;
+					} else {
+						networkState = NetworkingState.InputServerName;
+					}
 				}
 			}
+
+			GUILayout.EndArea ();
 			
 			if (networkState == NetworkingState.Connected) {
-				GUI.Label(new Rect(10, 30, 300, 100), serverName, serverNameStyle);
+				GUILayout.Label(serverName, serverNameStyle);
 			}
 		}
 	}
 
+	string errorMessage;
+	
+	void OnPhotonJoinRoomFailed() {
+		errorMessage = "Something went wrong...";
+		networkState = NetworkingState.ConnectionError;
+	}
+	
+	void OnPhotonCreateRoomFailed() {
+		errorMessage = "Something went wrong, please try again.";
+		networkState = NetworkingState.NewServerError;
+	}
+	
 	void OnPhotonPlayerConnected(PhotonPlayer player) {
 		if (PhotonNetwork.isMasterClient) {
 			string stateCollectionSerialized = StateCollection.Serialize(settings.stateCollection);
