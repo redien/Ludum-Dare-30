@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class Server : MonoBehaviour {
 	
@@ -47,9 +48,10 @@ public class Server : MonoBehaviour {
 		"proper", "speedy", "working", "sweet", "amazing", "cool", "special",
 		"magical", "enchanting", "busy", "cute", "basic", "slow", "frantic",
 		"odd", "even", "personal", "light", "heavy", "strong", "basic", "cold",
-		"warm", "super", "tasty", "personal", "crazy", "tiny", "tall", "small"
+		"warm", "super", "tasty", "personal", "crazy", "tiny", "tall", "small",
+		"shady"
 	};
-	
+
 	string[] randomNouns = {
 		"cat", "lizard", "dog", "panda", "game", "pants", "shoe", "tree",
 		"bee", "music", "car", "puppy", "craft", "saga", "king", "candy",
@@ -59,7 +61,7 @@ public class Server : MonoBehaviour {
 	};
 
 	string GenerateRandomName() {
-		return randomAdjectives[Random.Range(0, randomAdjectives.Length - 1)] + " " + randomNouns[Random.Range(0, randomNouns.Length - 1)];
+		return randomAdjectives[Random.Range(0, randomAdjectives.Length)] + " " + randomNouns[Random.Range(0, randomNouns.Length)];
 	}
 	
 	string serverToJoin = "";
@@ -108,6 +110,7 @@ public class Server : MonoBehaviour {
 	}
 	
 	void OnJoinedRoom() {
+		settings.GenerateLevel();
 		settings.Resume();
 		networkState = NetworkingState.Connected;
 	}

@@ -17,20 +17,11 @@ public class Totem : MonoBehaviour, InteractiveObject, State {
 		
 		var settings = GameObject.Find("Global").GetComponent<Settings>();
 		settings.states.Add(this);
+		photonView.viewID = settings.states.Count;
 	}
 	
 	bool state = false;
-	
-	// Use this for initialization
-	void Start () {
-		
-	}
-	
-	// Update is called once per frame
-	void Update () {
-	
-	}
-	
+
 	public void Interact(Transform interacter) {
 		if (CanInteract(interacter)) {
 			audio.Play();
