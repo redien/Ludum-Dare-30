@@ -7,7 +7,7 @@ using System.Collections.Generic;
 public class StateCollection
 {
 	[Serializable()]
-	class State {
+	public class State {
 		public enum VisibleTo {
 			All,
 			One
@@ -16,8 +16,10 @@ public class StateCollection
 		public bool enabled;
 		public int[] statesToEnableOnEnable;
 		public int[] statesToDisableOnEnable;
-		public VisibleTo visibleTo;
+		public bool propegateStateChanges;
+		public VisibleTo visibleTo = VisibleTo.All;
 		public int prefab;
+		public float disableAfter;
 	}
 
 	State[] states;
@@ -29,30 +31,26 @@ public class StateCollection
 			return states.Length;
 		}
 	}
-	
-	public StateCollection ()
-	{
-	}
-	
+
 	void SetStateInternal(int stateId, bool state) {
 		states[stateId].enabled = state;
 	}
 	
-	public delegate void StateChanged(int stateId, bool state);
+	public delegate void StateChanged(int stateId, bool state, bool broadcast = true);
 	[field: NonSerialized]
 	public event StateChanged stateChanged;
 	
 	public void SetState(int stateId, bool state, bool broadcast = true) {
 		if (!states[stateId].enabled && state) {
-			if (broadcast && stateChanged != null) {
-				stateChanged(stateId, state);
+			if (stateChanged != null) {
+				stateChanged(stateId, state, broadcast);
 			}
 			StateWasEnabled(stateId);
 		}
 		
 		if (states[stateId].enabled && !state) {
-			if (broadcast && stateChanged != null) {
-				stateChanged(stateId, state);
+			if (stateChanged != null) {
+				stateChanged(stateId, state, broadcast);
 			}
 		}
 
@@ -66,13 +64,21 @@ public class StateCollection
 	void StateWasEnabled(int stateId) {
 		if (states[stateId].statesToEnableOnEnable != null) {
 			foreach (var stateIdToEnable in states[stateId].statesToEnableOnEnable) {
-				SetStateInternal(stateIdToEnable, true);
+				if (states[stateId].propegateStateChanges) {
+					SetState(stateIdToEnable, true, false);
+				} else {
+					SetStateInternal(stateIdToEnable, true);
+				}
 			}
 		}
 
 		if (states[stateId].statesToDisableOnEnable != null) {
 			foreach (var stateIdToDisable in states[stateId].statesToDisableOnEnable) {
-				SetStateInternal(stateIdToDisable, false);
+				if (states[stateId].propegateStateChanges) {
+					SetState(stateIdToDisable, false, false);
+				} else {
+					SetStateInternal(stateIdToDisable, false);
+				}
 			}
 		}
 	}
@@ -81,14 +87,17 @@ public class StateCollection
 		return states[stateId].prefab;
 	}
 	
+	public State GetStateSettings(int stateId) {
+		return states[stateId];
+	}
+	
 	public void Generate() {
 		List<State> generatedStates = new List<State>();
 		
 		switch (level) {
-		case 0:
+		case 4:
 			{
 				State state = new State();
-				state.visibleTo = State.VisibleTo.All;
 				generatedStates.Add(state);
 			}
 		break;
@@ -96,12 +105,10 @@ public class StateCollection
 		case 1:
 			{
 				State state = new State();
-				state.visibleTo = State.VisibleTo.All;
 				generatedStates.Add(state);
 			}
 			{
 				State state = new State();
-				state.visibleTo = State.VisibleTo.All;
 				generatedStates.Add(state);
 			}
 		break;
@@ -109,17 +116,14 @@ public class StateCollection
 		case 2:
 			{
 				State state = new State();
-				state.visibleTo = State.VisibleTo.All;
 				generatedStates.Add(state);
 			}
 			{
 				State state = new State();
-				state.visibleTo = State.VisibleTo.All;
 				generatedStates.Add(state);
 			}
 			{
 				State state = new State();
-				state.visibleTo = State.VisibleTo.All;
 				state.prefab = 1;
 				generatedStates.Add(state);
 			}
@@ -128,15 +132,100 @@ public class StateCollection
 		case 3:
 			{
 				State state = new State();
-				state.visibleTo = State.VisibleTo.All;
 				generatedStates.Add(state);
 			}
 			{
 				State state = new State();
-				state.visibleTo = State.VisibleTo.All;
+				state.prefab = 1;
+				state.disableAfter = 3.0f;
+				generatedStates.Add(state);
+			}
+		break;
+
+		case 0:
+			{
+				State state = new State();
+				generatedStates.Add(state);
+			}
+			{
+				State state = new State();
 				state.statesToDisableOnEnable = new int[1];
 				state.statesToDisableOnEnable[0] = 0;
 				state.prefab = 1;
+				generatedStates.Add(state);
+			}
+		break;
+
+		case 5:
+			{
+				State state = new State();
+				state.statesToDisableOnEnable = new int[1];
+				state.statesToDisableOnEnable[0] = 1;
+				generatedStates.Add(state);
+			}
+			{
+				State state = new State();
+				state.statesToDisableOnEnable = new int[1];
+				state.statesToDisableOnEnable[0] = 0;
+				state.prefab = 1;
+				generatedStates.Add(state);
+			}
+			{
+				State state = new State();
+				state.statesToEnableOnEnable = new int[2];
+				state.statesToEnableOnEnable[0] = 0;
+				state.statesToEnableOnEnable[1] = 1;
+				state.prefab = 1;
+				generatedStates.Add(state);
+			}
+		break;
+
+		case 6:
+			{
+				State state = new State();
+				state.statesToEnableOnEnable = new int[1];
+				state.statesToEnableOnEnable[0] = 1;
+				state.propegateStateChanges = true;
+				state.disableAfter = 3.0f;
+				generatedStates.Add(state);
+			}
+			{
+				State state = new State();
+				state.statesToEnableOnEnable = new int[1];
+				state.statesToEnableOnEnable[0] = 2;
+				state.propegateStateChanges = true;
+				state.disableAfter = 3.0f;
+				generatedStates.Add(state);
+			}
+			{
+				State state = new State();
+				state.statesToEnableOnEnable = new int[1];
+				state.statesToEnableOnEnable[0] = 3;
+				state.propegateStateChanges = true;
+				state.disableAfter = 3.0f;
+				generatedStates.Add(state);
+			}
+			{
+				State state = new State();
+				state.disableAfter = 3.0f;
+				generatedStates.Add(state);
+			}
+		break;
+
+		case 7:
+			{
+				State state = new State();
+				generatedStates.Add(state);
+			}
+			{
+				State state = new State();
+				state.prefab = 1;
+				generatedStates.Add(state);
+			}
+			{
+				State state = new State();
+				state.prefab = 1;
+				state.visibleTo = State.VisibleTo.One;
 				generatedStates.Add(state);
 			}
 		break;

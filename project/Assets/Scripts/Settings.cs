@@ -76,11 +76,29 @@ public class Settings : MonoBehaviour {
 		StartCoroutine(NewLevelFade());
 	}
 
-	void HandleStateCollectionstateChanged (int stateId, bool state)
-	{
-		photonView.RPC("SetRemoteState", PhotonTargets.Others, stateId, state);
+	void TurnOffAfter(float delay, int stateId) {
+		StartCoroutine(TurnOffAfterCoroutine(delay, stateId));
 	}
-	
+
+	IEnumerator TurnOffAfterCoroutine(float delay, int stateId) {
+		yield return new WaitForSeconds(delay);
+		stateCollection.SetState(stateId, false, false);
+	}
+
+	void HandleStateCollectionstateChanged (int stateId, bool state, bool broadcast)
+	{
+		if (state) {
+			var stateSettings = stateCollection.GetStateSettings(stateId);
+			if (stateSettings.disableAfter > 0.0f) {
+				TurnOffAfter(stateSettings.disableAfter, stateId);
+			}
+		}
+		
+		if (broadcast) {
+			photonView.RPC("SetRemoteState", PhotonTargets.Others, stateId, state);
+		}
+	}
+
 	[RPC]
 	void SetRemoteState(int stateId, bool state) {
 		stateCollection.SetState(stateId, state, false);

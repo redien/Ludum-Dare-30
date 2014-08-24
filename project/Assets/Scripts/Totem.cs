@@ -5,11 +5,30 @@ public class Totem : MonoBehaviour, InteractiveObject, State {
 	
 	public GameObject disabledObject;
 	public GameObject enabledObject;
+	public GameObject delayedObject;
+	
+	public GameObject linkedStatue;
+	public GameObject defaultStatue;
+	
 	public float interactDistance = 10.0f;
 	
 	void Awake () {
 		var interactive = GetComponent<Interactive>();
 		interactive.interactiveObject = this;
+	}
+	
+	void Start () {
+		var settings = stateCollection.GetStateSettings(stateId);
+		if (settings.disableAfter > 0.0f) {
+			disabledObject.SetActive(false);
+			disabledObject = delayedObject;
+			disabledObject.SetActive(true);
+		}
+
+		if (settings.statesToEnableOnEnable != null || settings.statesToDisableOnEnable != null) {
+			linkedStatue.SetActive(true);
+			defaultStatue.SetActive(false);
+		}
 	}
 	
 	// Reference to the actual state object
