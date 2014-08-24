@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Collections.Generic;
 
 [Serializable()]
 public class StateCollection
@@ -20,6 +21,8 @@ public class StateCollection
 	}
 
 	State[] states;
+	
+	public int level = 0;
 	
 	public int Count {
 		get {
@@ -78,14 +81,78 @@ public class StateCollection
 		return states[stateId].prefab;
 	}
 	
-	public void Generate(int level) {
-		states = new State[1];
+	public void Generate() {
+		List<State> generatedStates = new List<State>();
 		
-		State state = new State();
-		state.visibleTo = State.VisibleTo.All;
-		states[0] = state;
+		switch (level) {
+		case 0:
+			{
+				State state = new State();
+				state.visibleTo = State.VisibleTo.All;
+				generatedStates.Add(state);
+			}
+		break;
+			
+		case 1:
+			{
+				State state = new State();
+				state.visibleTo = State.VisibleTo.All;
+				generatedStates.Add(state);
+			}
+			{
+				State state = new State();
+				state.visibleTo = State.VisibleTo.All;
+				generatedStates.Add(state);
+			}
+		break;
+			
+		case 2:
+			{
+				State state = new State();
+				state.visibleTo = State.VisibleTo.All;
+				generatedStates.Add(state);
+			}
+			{
+				State state = new State();
+				state.visibleTo = State.VisibleTo.All;
+				generatedStates.Add(state);
+			}
+			{
+				State state = new State();
+				state.visibleTo = State.VisibleTo.All;
+				state.prefab = 1;
+				generatedStates.Add(state);
+			}
+		break;
+
+		case 3:
+			{
+				State state = new State();
+				state.visibleTo = State.VisibleTo.All;
+				generatedStates.Add(state);
+			}
+			{
+				State state = new State();
+				state.visibleTo = State.VisibleTo.All;
+				state.statesToDisableOnEnable = new int[1];
+				state.statesToDisableOnEnable[0] = 0;
+				state.prefab = 1;
+				generatedStates.Add(state);
+			}
+		break;
+
+		default: {
+			states = new State[1];
+			State state = new State();
+			state.visibleTo = State.VisibleTo.All;
+			states[0] = state;
+		}
+		break;
+		}
+		
+		states = generatedStates.ToArray();
 	}
-	
+
 	public static StateCollection Deserialize(string serialized) {
 		BinaryFormatter deserializer = new BinaryFormatter();
 		

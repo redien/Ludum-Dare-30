@@ -25,8 +25,6 @@ public class Settings : MonoBehaviour {
 	
 	PhotonView photonView;
 	
-	public int level = 0;
-	
 	// Use this for initialization
 	void Awake () {
 		Application.runInBackground = true;
@@ -50,14 +48,20 @@ public class Settings : MonoBehaviour {
 	}
 	
 	public void GenerateState() {
+		var oldStateCollection = stateCollection;
 		stateCollection = new StateCollection();
-		stateCollection.Generate(level);
+		
+		if (oldStateCollection != null) {
+			stateCollection.level = oldStateCollection.level + 1;
+		}
+
+		stateCollection.Generate();
 	}
 	
 	public void LoadNextLevel() {
 		GenerateState();
 
-		StartCoroutine(NewLevelFade(stateCollection));
+		StartCoroutine(NewLevelFade());
 		
 		/* Serialize states to send over RPC */
 		string serializedWorldState = StateCollection.Serialize(stateCollection);
@@ -69,7 +73,7 @@ public class Settings : MonoBehaviour {
 	void SomeoneCompletedLevel(string serializedWorldState) {
 		/* Deserialize states we got over RPC */
 		stateCollection = StateCollection.Deserialize(serializedWorldState);
-		StartCoroutine(NewLevelFade(stateCollection));
+		StartCoroutine(NewLevelFade());
 	}
 
 	void HandleStateCollectionstateChanged (int stateId, bool state)
@@ -82,12 +86,11 @@ public class Settings : MonoBehaviour {
 		stateCollection.SetState(stateId, state, false);
 	}
 
-	IEnumerator NewLevelFade(StateCollection stateCollection) {
+	IEnumerator NewLevelFade() {
 		Pause();
 		yield return new WaitForSeconds(2.0f);
 		
 		GenerateLevel();
-		level += 1;
 		
 		player.transform.position = initialPlayerPosition;
 		player.transform.localRotation = Quaternion.identity;
@@ -121,8 +124,8 @@ public class Settings : MonoBehaviour {
 		var firstOffset = new Vector3(-50, 0, -50);
 		for (var y = 0; y < 5; ++y) {
 			for (var x = 0; x < 5; ++x) {
-				// Skip the section where the portal is
-				if (x != 2 || y != 4) {
+				// Skip the section where the portal is and where we spawn
+				if (!(x == 2 && y == 4) && !(x == 2 && y == 2)) {
 					GameObject sectionPrefab;
 					bool spawnedState = false;
 					Vector3 position = firstOffset + new Vector3(x * 25, 0, y * 25);
