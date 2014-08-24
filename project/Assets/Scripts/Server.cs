@@ -140,7 +140,11 @@ public class Server : MonoBehaviour {
 			GUILayout.EndArea ();
 			
 			if (networkState == NetworkingState.Connected) {
+				GUILayout.Label("Other players can use this name to connect:");
+				GUILayout.BeginHorizontal();
+				GUILayout.Space(30);
 				GUILayout.Label(serverName, serverNameStyle);
+				GUILayout.EndHorizontal();
 			}
 		}
 	}
