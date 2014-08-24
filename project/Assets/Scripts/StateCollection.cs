@@ -142,10 +142,6 @@ public class StateCollection
 		break;
 
 		default: {
-			states = new State[1];
-			State state = new State();
-			state.visibleTo = State.VisibleTo.All;
-			states[0] = state;
 		}
 		break;
 		}

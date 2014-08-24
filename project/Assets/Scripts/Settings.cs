@@ -112,46 +112,53 @@ public class Settings : MonoBehaviour {
 	public GameObject[] stateSectionPrefabs;
 	public GameObject[] staticSectionPrefabs;
 	List<GameObject> sections = new List<GameObject>();
-
+	
+	GameObject InstantiateSectionPrefab(GameObject sectionPrefab, int x, int y) {
+		var firstOffset = new Vector3(-50, 0, -50);
+		Vector3 position = firstOffset + new Vector3(x * 25, 0, y * 25);
+		Quaternion rotation = Quaternion.AngleAxis(Random.Range(0, 360), Vector3.up);
+		return (GameObject)Instantiate(sectionPrefab, position, rotation);
+	}
+	
 	public void GenerateLevel() {
 		foreach (var section in sections) {
 			DestroyImmediate(section);
 		}
 		sections.Clear();
 		
-		var statesSpawned = 0;
+		GameObject[,] board = new GameObject[5,5];
 		
-		var firstOffset = new Vector3(-50, 0, -50);
+		// Spawn the state sections
+		for (var i = 0; i < stateCollection.Count; ++i) {
+			int x, y;
+			
+			do {
+				x = Random.Range(0, 4);
+				y = Random.Range(0, 4);
+			} while (board[x, y] != null);
+			
+			var sectionPrefab = stateSectionPrefabs[stateCollection.GetPrefabOf(i)];
+			var section = InstantiateSectionPrefab(sectionPrefab, x, y);
+			sections.Add(section);
+
+			board[x, y] = section;
+
+			var totem = section.GetComponentInChildren<Totem>();
+			if (totem) {
+				totem.stateCollection = stateCollection;
+				totem.stateId = i;
+				// Update state
+				totem.UpdateState();
+			}
+		}
+		
+		// Fill up the rest with crap
 		for (var y = 0; y < 5; ++y) {
 			for (var x = 0; x < 5; ++x) {
 				// Skip the section where the portal is and where we spawn
-				if (!(x == 2 && y == 4) && !(x == 2 && y == 2)) {
-					GameObject sectionPrefab;
-					bool spawnedState = false;
-					Vector3 position = firstOffset + new Vector3(x * 25, 0, y * 25);
-					Quaternion rotation = Quaternion.AngleAxis(Random.Range(0, 360), Vector3.up);
-					
-					if (statesSpawned < stateCollection.Count) {
-						sectionPrefab = stateSectionPrefabs[stateCollection.GetPrefabOf(statesSpawned)];
-						spawnedState = true;
-					} else {
-						sectionPrefab = staticSectionPrefabs[Random.Range(0, staticSectionPrefabs.Length)];
-					}
-
-					var section = (GameObject)Instantiate(sectionPrefab, position, rotation);
-					
-					// Initialize states
-					if (spawnedState) {
-						var totem = section.GetComponentInChildren<Totem>();
-						if (totem) {
-							totem.stateCollection = stateCollection;
-							totem.stateId = statesSpawned;
-							// Update state
-							totem.UpdateState();
-						}
-						statesSpawned += 1;
-					}
-					
+				if (board[x, y] == null && !(x == 2 && y == 4) && !(x == 2 && y == 2)) {
+					GameObject sectionPrefab = staticSectionPrefabs[Random.Range(0, staticSectionPrefabs.Length)];
+					var section = InstantiateSectionPrefab(sectionPrefab, x, y);
 					sections.Add(section);
 				}
 			}
