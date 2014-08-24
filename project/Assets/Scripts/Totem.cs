@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Totem : MonoBehaviour, InteractiveObject {
+public class Totem : MonoBehaviour, InteractiveObject, State {
 	
 	public GameObject disabledObject;
 	public GameObject enabledObject;
@@ -14,6 +14,9 @@ public class Totem : MonoBehaviour, InteractiveObject {
 		interactive.interactiveObject = this;
 		
 		photonView = GetComponent<PhotonView>();
+		
+		var settings = GameObject.Find("Global").GetComponent<Settings>();
+		settings.states.Add(this);
 	}
 	
 	bool state = false;
@@ -44,6 +47,10 @@ public class Totem : MonoBehaviour, InteractiveObject {
 	void SetRemoteState(int state) {
 		audio.Play();
 		SetState(state != 0);
+	}
+	
+	public bool GetState() {
+		return state;
 	}
 
 	void SetState(bool state) {

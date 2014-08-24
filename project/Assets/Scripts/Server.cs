@@ -102,7 +102,7 @@ public class Server : MonoBehaviour {
 			}
 			
 			if (networkState == NetworkingState.Connected) {
-				GUI.Label(new Rect(10, 10, 300, 100), serverName, serverNameStyle);
+				GUI.Label(new Rect(10, 30, 300, 100), serverName, serverNameStyle);
 			}
 		}
 	}

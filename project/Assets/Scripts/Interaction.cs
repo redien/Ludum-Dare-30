@@ -5,11 +5,6 @@ public class Interaction : MonoBehaviour {
 	
 	public Transform debugPoint;
 	
-	// Use this for initialization
-	void Start () {
-		
-	}
-	
 	Interactive FindInteractiveIfExists(Transform child) {
 		var interactive = child.GetComponent<Interactive>();
 		if (interactive != null) {
