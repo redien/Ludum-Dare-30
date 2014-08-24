@@ -109,24 +109,23 @@ public class Server : MonoBehaviour {
 
 	void OnPhotonPlayerConnected(PhotonPlayer player) {
 		if (PhotonNetwork.isMasterClient) {
-			string worldStateSerialized = WorldState.Serialize(settings.worldState);
-			photonView.RPC("RecieveWorldState", player, worldStateSerialized);
+			string stateCollectionSerialized = StateCollection.Serialize(settings.stateCollection);
+			photonView.RPC("RecieveWorldState", player, stateCollectionSerialized);
 		}
 	}
 	
 	[RPC]
-	void RecieveWorldState(string worldStateSerialized) {
-		WorldState worldState = WorldState.Deserialize(worldStateSerialized);
-		settings.GenerateLevel(worldState);
+	void RecieveWorldState(string stateCollectionSerialized) {
+		settings.stateCollection = StateCollection.Deserialize(stateCollectionSerialized);
+		settings.GenerateLevel();
 		settings.Resume();
 		networkState = NetworkingState.Connected;
 	}
 	
 	void OnJoinedRoom() {
 		if (PhotonNetwork.isMasterClient) {
-			settings.worldState = new WorldState();
-			settings.worldState.Generate(settings.level);
-			settings.GenerateLevel(settings.worldState);
+			settings.GenerateState();
+			settings.GenerateLevel();
 			settings.Resume();
 			networkState = NetworkingState.Connected;
 		}

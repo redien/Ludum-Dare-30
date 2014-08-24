@@ -485,8 +485,6 @@ MonoBehaviour:
   initialPlayerPosition: {x: 0, y: 0, z: 0}
   fader: {fileID: 1756423460}
   portal: {fileID: 766041571}
-  worldState:
-    states: []
   level: 0
   stateSectionPrefabs:
   - {fileID: 100000, guid: c1f162b565accdd42ab052694ccf86f9, type: 2}

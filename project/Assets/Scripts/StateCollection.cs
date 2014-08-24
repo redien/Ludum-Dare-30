@@ -3,10 +3,10 @@ using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 
 [Serializable()]
-public class WorldState
+public class StateCollection
 {
 	[Serializable()]
-	public class State {
+	class State {
 		public enum VisibleTo {
 			All,
 			One
@@ -19,7 +19,7 @@ public class WorldState
 		public int prefab;
 	}
 
-	public State[] states;
+	State[] states;
 	
 	public int Count {
 		get {
@@ -27,7 +27,7 @@ public class WorldState
 		}
 	}
 	
-	public WorldState ()
+	public StateCollection ()
 	{
 	}
 	
@@ -35,14 +35,27 @@ public class WorldState
 		states[stateId].enabled = state;
 	}
 	
-	public void SetState(int stateId, bool state) {
-		SetStateInternal(stateId, state);
-		
+	public delegate void StateChanged(int stateId, bool state);
+	[field: NonSerialized]
+	public event StateChanged stateChanged;
+	
+	public void SetState(int stateId, bool state, bool broadcast = true) {
 		if (!states[stateId].enabled && state) {
+			if (broadcast && stateChanged != null) {
+				stateChanged(stateId, state);
+			}
 			StateWasEnabled(stateId);
 		}
+		
+		if (states[stateId].enabled && !state) {
+			if (broadcast && stateChanged != null) {
+				stateChanged(stateId, state);
+			}
+		}
+
+		SetStateInternal(stateId, state);
 	}
-	
+
 	public bool GetState(int stateId) {
 		return states[stateId].enabled;
 	}
@@ -73,7 +86,7 @@ public class WorldState
 		states[0] = state;
 	}
 	
-	public static WorldState Deserialize(string serialized) {
+	public static StateCollection Deserialize(string serialized) {
 		BinaryFormatter deserializer = new BinaryFormatter();
 		
 		using (MemoryStream stream = new MemoryStream()) {
@@ -81,14 +94,14 @@ public class WorldState
 			stream.Write(converted, 0, converted.Length);
 			stream.Seek(0, SeekOrigin.Begin);
 	
-	        return (WorldState)deserializer.Deserialize(stream);
+	        return (StateCollection)deserializer.Deserialize(stream);
 		}
 	}
 	
-	public static string Serialize(WorldState worldState) {
+	public static string Serialize(StateCollection stateCollection) {
 		using (MemoryStream stream = new MemoryStream()) {
 			BinaryFormatter serializer = new BinaryFormatter();
-			serializer.Serialize(stream, worldState);
+			serializer.Serialize(stream, stateCollection);
 			stream.Flush();
 			stream.Position = 0;
 			return Convert.ToBase64String(stream.ToArray());

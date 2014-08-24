@@ -140,8 +140,8 @@
      <Compile Include="Assets\Scripts\Server.cs" />
      <Compile Include="Assets\Scripts\Settings.cs" />
      <Compile Include="Assets\Scripts\State.cs" />
+     <Compile Include="Assets\Scripts\StateCollection.cs" />
      <Compile Include="Assets\Scripts\Totem.cs" />
-     <Compile Include="Assets\Scripts\WorldState.cs" />
      <None Include="Assets\Photon Unity Networking\Demos\MarcoPolo-Tutorial\marcopolo-readme.txt" />
      <None Include="Assets\Plugins\Photon3Unity3D.xml" />
      <None Include="Assets\Photon Unity Networking\Demos\DemoBoxes\Resources\eurof_tt.txt" />

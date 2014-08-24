@@ -8,9 +8,20 @@ public class Settings : MonoBehaviour {
 	public Vector3 initialPlayerPosition;
 	public Fader fader;
 
-	public List<State> states = new List<State>();
 	public Portal portal;
-	public WorldState worldState;
+	
+	
+	StateCollection stateCollectionPrivate;
+	public StateCollection stateCollection {
+		get {
+			return stateCollectionPrivate;
+		}
+		
+		set {
+			value.stateChanged += HandleStateCollectionstateChanged;
+			stateCollectionPrivate = value;
+		}
+	}
 	
 	PhotonView photonView;
 	
@@ -26,24 +37,30 @@ public class Settings : MonoBehaviour {
 
 	// Update is called once per frame
 	void Update () {
-		var shouldEnablePortal = true;
-		foreach (var state in states) {
-			if (!state.GetState()) {
-				shouldEnablePortal = false;
-				break;
+		if (stateCollection != null) {
+			var shouldEnablePortal = true;
+			for (var i = 0; i < stateCollection.Count; ++i) {
+				if (!stateCollection.GetState(i)) {
+					shouldEnablePortal = false;
+					break;
+				}
 			}
+			portal.SetState(shouldEnablePortal);
 		}
-		portal.SetState(shouldEnablePortal);
+	}
+	
+	public void GenerateState() {
+		stateCollection = new StateCollection();
+		stateCollection.Generate(level);
 	}
 	
 	public void LoadNextLevel() {
-		worldState = new WorldState();
-		worldState.Generate(level);
+		GenerateState();
 
-		StartCoroutine(NewLevelFade(worldState));
+		StartCoroutine(NewLevelFade(stateCollection));
 		
 		/* Serialize states to send over RPC */
-		string serializedWorldState = WorldState.Serialize(worldState);
+		string serializedWorldState = StateCollection.Serialize(stateCollection);
 		
 		photonView.RPC("SomeoneCompletedLevel", PhotonTargets.Others, serializedWorldState);
 	}
@@ -51,15 +68,25 @@ public class Settings : MonoBehaviour {
 	[RPC]
 	void SomeoneCompletedLevel(string serializedWorldState) {
 		/* Deserialize states we got over RPC */
-		worldState = WorldState.Deserialize(serializedWorldState);
-		StartCoroutine(NewLevelFade(worldState));
+		stateCollection = StateCollection.Deserialize(serializedWorldState);
+		StartCoroutine(NewLevelFade(stateCollection));
 	}
 
-	IEnumerator NewLevelFade(WorldState worldState) {
+	void HandleStateCollectionstateChanged (int stateId, bool state)
+	{
+		photonView.RPC("SetRemoteState", PhotonTargets.Others, stateId, state);
+	}
+	
+	[RPC]
+	void SetRemoteState(int stateId, bool state) {
+		stateCollection.SetState(stateId, state, false);
+	}
+
+	IEnumerator NewLevelFade(StateCollection stateCollection) {
 		Pause();
 		yield return new WaitForSeconds(2.0f);
 		
-		GenerateLevel(worldState);
+		GenerateLevel();
 		level += 1;
 		
 		player.transform.position = initialPlayerPosition;
@@ -83,8 +110,7 @@ public class Settings : MonoBehaviour {
 	public GameObject[] staticSectionPrefabs;
 	List<GameObject> sections = new List<GameObject>();
 
-	public void GenerateLevel(WorldState worldState) {
-		states.Clear();
+	public void GenerateLevel() {
 		foreach (var section in sections) {
 			DestroyImmediate(section);
 		}
@@ -102,8 +128,8 @@ public class Settings : MonoBehaviour {
 					Vector3 position = firstOffset + new Vector3(x * 25, 0, y * 25);
 					Quaternion rotation = Quaternion.AngleAxis(Random.Range(0, 360), Vector3.up);
 					
-					if (statesSpawned < worldState.Count) {
-						sectionPrefab = stateSectionPrefabs[worldState.GetPrefabOf(statesSpawned)];
+					if (statesSpawned < stateCollection.Count) {
+						sectionPrefab = stateSectionPrefabs[stateCollection.GetPrefabOf(statesSpawned)];
 						spawnedState = true;
 					} else {
 						sectionPrefab = staticSectionPrefabs[Random.Range(0, staticSectionPrefabs.Length)];
@@ -115,8 +141,10 @@ public class Settings : MonoBehaviour {
 					if (spawnedState) {
 						var totem = section.GetComponentInChildren<Totem>();
 						if (totem) {
-							totem.state = worldState.states[statesSpawned];
-							totem.SetState(totem.GetState());
+							totem.stateCollection = stateCollection;
+							totem.stateId = statesSpawned;
+							// Update state
+							totem.UpdateState();
 						}
 						statesSpawned += 1;
 					}
