@@ -485,14 +485,14 @@ MonoBehaviour:
   initialPlayerPosition: {x: 0, y: 0, z: 0}
   fader: {fileID: 1756423460}
   portal: {fileID: 766041571}
-  sectionPrefabs:
+  worldState:
+    states: []
+  level: 0
+  stateSectionPrefabs:
   - {fileID: 100000, guid: c1f162b565accdd42ab052694ccf86f9, type: 2}
-  - {fileID: 100000, guid: 8757c632ad072ae49a8f3652397badea, type: 2}
-  - {fileID: 100000, guid: 337d344634b8c36448e0bbc956cc0ea7, type: 2}
   - {fileID: 100000, guid: b625bdc53bc8c904383ff2ec3517e759, type: 2}
+  staticSectionPrefabs:
   - {fileID: 100000, guid: 8757c632ad072ae49a8f3652397badea, type: 2}
-  - {fileID: 100000, guid: 8757c632ad072ae49a8f3652397badea, type: 2}
-  - {fileID: 100000, guid: 337d344634b8c36448e0bbc956cc0ea7, type: 2}
   - {fileID: 100000, guid: 337d344634b8c36448e0bbc956cc0ea7, type: 2}
 --- !u!4 &737981553
 Transform:

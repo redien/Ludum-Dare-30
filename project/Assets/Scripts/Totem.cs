@@ -20,13 +20,14 @@ public class Totem : MonoBehaviour, InteractiveObject, State {
 		photonView.viewID = settings.states.Count;
 	}
 	
-	bool state = false;
+	// Reference to the actual state object
+	public WorldState.State state;
 
 	public void Interact(Transform interacter) {
 		if (CanInteract(interacter)) {
 			audio.Play();
-			SetState(!state);
-			photonView.RPC("SetRemoteState", PhotonTargets.Others, (state ? 1 : 0));
+			SetState(!state.enabled);
+			photonView.RPC("SetRemoteState", PhotonTargets.Others, (state.enabled ? 1 : 0));
 		}
 	}
 	
@@ -41,11 +42,11 @@ public class Totem : MonoBehaviour, InteractiveObject, State {
 	}
 	
 	public bool GetState() {
-		return state;
+		return state.enabled;
 	}
 
-	void SetState(bool state) {
-		this.state = state;
+	public void SetState(bool state) {
+		this.state.enabled = state;
 		
 		if (state) {
 			disabledObject.SetActive(false);
@@ -53,12 +54,6 @@ public class Totem : MonoBehaviour, InteractiveObject, State {
 		} else {
 			disabledObject.SetActive(true);
 			enabledObject.SetActive(false);
-		}
-	}
-
-	void OnPhotonPlayerConnected(PhotonPlayer player) {
-		if (PhotonNetwork.isMasterClient) {
-			photonView.RPC("SetRemoteState", player, (state ? 1 : 0));
 		}
 	}
 }

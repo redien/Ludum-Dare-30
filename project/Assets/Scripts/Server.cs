@@ -84,15 +84,13 @@ public class Server : MonoBehaviour {
 				if (GUI.Button(new Rect(50, 50, 100, 75), "Host a game")) {
 					serverName = GenerateRandomName();
 					PhotonNetwork.CreateRoom(serverName);
-					settings.Resume();
-					networkState = NetworkingState.Connected;
 				}
 	
 				if (GUI.Button(new Rect(200, 50, 200, 75), "Join another game")) {
 					networkState = NetworkingState.InputServerName;
 				}
 			}
-	
+
 			if (networkState == NetworkingState.InputServerName) {
 				serverToJoin = GUI.TextField(new Rect(10, 50, 180, 75), serverToJoin);
 				
@@ -108,10 +106,29 @@ public class Server : MonoBehaviour {
 			}
 		}
 	}
+
+	void OnPhotonPlayerConnected(PhotonPlayer player) {
+		if (PhotonNetwork.isMasterClient) {
+			string worldStateSerialized = WorldState.Serialize(settings.worldState);
+			photonView.RPC("RecieveWorldState", player, worldStateSerialized);
+		}
+	}
 	
-	void OnJoinedRoom() {
-		settings.GenerateLevel();
+	[RPC]
+	void RecieveWorldState(string worldStateSerialized) {
+		WorldState worldState = WorldState.Deserialize(worldStateSerialized);
+		settings.GenerateLevel(worldState);
 		settings.Resume();
 		networkState = NetworkingState.Connected;
+	}
+	
+	void OnJoinedRoom() {
+		if (PhotonNetwork.isMasterClient) {
+			settings.worldState = new WorldState();
+			settings.worldState.Generate(settings.level);
+			settings.GenerateLevel(settings.worldState);
+			settings.Resume();
+			networkState = NetworkingState.Connected;
+		}
 	}
 }
