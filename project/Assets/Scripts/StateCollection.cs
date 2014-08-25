@@ -111,38 +111,14 @@ public class StateCollection
 				State state = new State();
 				generatedStates.Add(state);
 			}
+			{
+				State state = new State();
+				state.prefab = 1;
+				generatedStates.Add(state);
+			}
 		break;
-			
+
 		case 2:
-			{
-				State state = new State();
-				generatedStates.Add(state);
-			}
-			{
-				State state = new State();
-				generatedStates.Add(state);
-			}
-			{
-				State state = new State();
-				state.prefab = 1;
-				generatedStates.Add(state);
-			}
-		break;
-
-		case 3:
-			{
-				State state = new State();
-				generatedStates.Add(state);
-			}
-			{
-				State state = new State();
-				state.prefab = 1;
-				state.disableAfter = 3.0f;
-				generatedStates.Add(state);
-			}
-		break;
-
-		case 4:
 			{
 				State state = new State();
 				generatedStates.Add(state);
@@ -156,7 +132,7 @@ public class StateCollection
 			}
 		break;
 
-		case 5:
+		case 3:
 			{
 				State state = new State();
 				state.statesToDisableOnEnable = new int[1];
@@ -180,7 +156,20 @@ public class StateCollection
 			}
 		break;
 
-		case 6:
+		case 4:
+			{
+				State state = new State();
+				generatedStates.Add(state);
+			}
+			{
+				State state = new State();
+				state.prefab = 1;
+				state.disableAfter = 3.0f;
+				generatedStates.Add(state);
+			}
+		break;
+
+		case 5:
 			{
 				State state = new State();
 				state.statesToEnableOnEnable = new int[1];
@@ -212,7 +201,7 @@ public class StateCollection
 			}
 		break;
 
-		case 7:
+		case 6:
 			{
 				State state = new State();
 				generatedStates.Add(state);

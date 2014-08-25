@@ -146,6 +146,9 @@ public class Settings : MonoBehaviour {
 		
 		GameObject[,] board = new GameObject[5,5];
 		
+		board[2, 4] = new GameObject();
+		board[2, 2] = new GameObject();
+		
 		// Spawn the state sections
 		for (var i = 0; i < stateCollection.Count; ++i) {
 			int x, y;
@@ -174,7 +177,7 @@ public class Settings : MonoBehaviour {
 		for (var y = 0; y < 5; ++y) {
 			for (var x = 0; x < 5; ++x) {
 				// Skip the section where the portal is and where we spawn
-				if (board[x, y] == null && !(x == 2 && y == 4) && !(x == 2 && y == 2)) {
+				if (board[x, y] == null) {
 					GameObject sectionPrefab = staticSectionPrefabs[Random.Range(0, staticSectionPrefabs.Length)];
 					var section = InstantiateSectionPrefab(sectionPrefab, x, y);
 					sections.Add(section);
