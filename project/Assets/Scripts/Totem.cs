@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Totem : MonoBehaviour, InteractiveObject, State {
+public class Totem : MonoBehaviour, InteractiveObject {
 	
 	public GameObject disabledObject;
 	public GameObject enabledObject;
@@ -16,8 +16,14 @@ public class Totem : MonoBehaviour, InteractiveObject, State {
 		var interactive = GetComponent<Interactive>();
 		interactive.interactiveObject = this;
 	}
-	
+
 	void Start () {
+		// Initialize from spawner
+		var stateSpawner = transform.parent.GetComponent<StateSpawner>();
+		stateCollection = stateSpawner.stateCollection;
+		stateId = stateSpawner.stateId;
+		
+		// Customize based on state settings
 		var settings = stateCollection.GetStateSettings(stateId);
 		if (settings.disableAfter > 0.0f) {
 			disabledObject.SetActive(false);
@@ -29,6 +35,8 @@ public class Totem : MonoBehaviour, InteractiveObject, State {
 			linkedStatue.SetActive(true);
 			defaultStatue.SetActive(false);
 		}
+
+		UpdateState();
 	}
 	
 	// Reference to the actual state object

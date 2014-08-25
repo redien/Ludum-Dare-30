@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -164,12 +164,10 @@ public class Settings : MonoBehaviour {
 
 			board[x, y] = section;
 
-			var totem = section.GetComponentInChildren<Totem>();
-			if (totem) {
-				totem.stateCollection = stateCollection;
-				totem.stateId = i;
-				// Update state
-				totem.UpdateState();
+			var spawner = section.GetComponentInChildren<StateSpawner>();
+			if (spawner) {
+				spawner.stateCollection = stateCollection;
+				spawner.stateId = i;
 			}
 		}
 		
