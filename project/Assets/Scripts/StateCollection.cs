@@ -7,7 +7,7 @@ using System.Collections.Generic;
 public class StateCollection
 {
 	[NonSerialized]
-	public static string gameVersion = "version 2";
+	public static string gameVersion = "version 3";
 
 	public string version = gameVersion;
 
