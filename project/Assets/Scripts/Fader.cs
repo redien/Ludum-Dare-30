@@ -22,6 +22,8 @@ public class Fader : MonoBehaviour {
 		material.color = new Color(0, 0, 0, alpha);
 		renderer.sharedMaterial = material;
 		
+		AudioListener.volume = 1.0f - alpha;
+		
 		if (fadeIn) {
 			alpha -= Time.deltaTime * 0.5f;
 		} else {
