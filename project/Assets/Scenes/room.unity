@@ -3098,7 +3098,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 531d907c47aa5c24380bf475b3034de5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  version: version 1
   settings: {fileID: 0}
   serverNameStyle:
     m_Name: 

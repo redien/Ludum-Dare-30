@@ -4,8 +4,6 @@ using System.Collections.Generic;
 
 public class Server : MonoBehaviour {
 	
-	public string version = "version 1";
-	
 	public Settings settings;
 	public GUIStyle serverNameStyle;
 	
@@ -171,11 +169,18 @@ public class Server : MonoBehaviour {
 	[RPC]
 	void RecieveWorldState(string stateCollectionSerialized) {
 		settings.stateCollection = StateCollection.Deserialize(stateCollectionSerialized);
-		settings.GenerateLevel();
-		settings.Resume();
-		networkState = NetworkingState.Connected;
+		
+		if (settings.stateCollection.version == StateCollection.gameVersion) {
+			settings.GenerateLevel();
+			settings.Resume();
+			networkState = NetworkingState.Connected;
+		} else {
+			errorMessage = "Incorrect game version!";
+			networkState = NetworkingState.ConnectionError;
+			PhotonNetwork.LeaveRoom();
+		}
 	}
-	
+
 	void OnJoinedRoom() {
 		if (PhotonNetwork.isMasterClient) {
 			settings.GenerateState();

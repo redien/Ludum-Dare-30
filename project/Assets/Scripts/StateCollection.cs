@@ -6,6 +6,11 @@ using System.Collections.Generic;
 [Serializable()]
 public class StateCollection
 {
+	[NonSerialized]
+	public static string gameVersion = "version 2";
+
+	public string version = gameVersion;
+
 	[Serializable()]
 	public class State {
 		public enum VisibleTo {
