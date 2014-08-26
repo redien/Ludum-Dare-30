@@ -6,6 +6,7 @@ public class Server : MonoBehaviour {
 	
 	public Settings settings;
 	public GUIStyle serverNameStyle;
+	public GUIStyle descriptionTextStyle;
 	
 	[HideInInspector]
 	public string serverName;
@@ -85,8 +86,10 @@ public class Server : MonoBehaviour {
 			GUILayout.BeginArea(new Rect (Screen.width/2 - 200, Screen.height/2 - 200, 400, 400));
 			
 			if (networkState == NetworkingState.SelectRole) {
+				GUILayout.Label("This is a cooperative multiplayer game that is meant to be played with 2 or more people, talking over Skype or similar technology. But you can still play solo for a few levels if that's your thing!", descriptionTextStyle, GUILayout.MinHeight(100));
+				
 				GUILayout.BeginHorizontal();
-				if (GUILayout.Button("Host a game", GUILayout.MinWidth(100), GUILayout.MinHeight(50))) {
+				if (GUILayout.Button("Start a game", GUILayout.MinWidth(100), GUILayout.MinHeight(50))) {
 					serverName = GenerateRandomName();
 					PhotonNetwork.CreateRoom(serverName);
 				}

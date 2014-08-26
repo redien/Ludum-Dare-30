@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 
 public class Totem : MonoBehaviour, InteractiveObject {
@@ -12,11 +12,15 @@ public class Totem : MonoBehaviour, InteractiveObject {
 	
 	public float interactDistance = 10.0f;
 	
+	public AudioSource ticking;
+	
 	void Awake () {
 		var interactive = GetComponent<Interactive>();
 		interactive.interactiveObject = this;
 	}
-
+	
+	StateCollection.State stateSettings;
+	
 	void Start () {
 		// Initialize from spawner
 		var stateSpawner = transform.parent.GetComponent<StateSpawner>();
@@ -24,14 +28,14 @@ public class Totem : MonoBehaviour, InteractiveObject {
 		stateId = stateSpawner.stateId;
 		
 		// Customize based on state settings
-		var settings = stateCollection.GetStateSettings(stateId);
-		if (settings.disableAfter > 0.0f) {
-			disabledObject.SetActive(false);
-			disabledObject = delayedObject;
-			disabledObject.SetActive(true);
+		stateSettings = stateCollection.GetStateSettings(stateId);
+		if (stateSettings.disableAfter > 0.0f) {
+			enabledObject.SetActive(false);
+			enabledObject = delayedObject;
+			enabledObject.SetActive(true);
 		}
 
-		if (settings.statesToEnableOnEnable != null || settings.statesToDisableOnEnable != null) {
+		if (stateSettings.statesToEnableOnEnable != null || stateSettings.statesToDisableOnEnable != null) {
 			linkedStatue.SetActive(true);
 			defaultStatue.SetActive(false);
 		}
@@ -46,6 +50,15 @@ public class Totem : MonoBehaviour, InteractiveObject {
 	public void Interact(Transform interacter) {
 		if (CanInteract(interacter)) {
 			audio.Play();
+			
+			if (stateSettings.disableAfter > 0.0f) {
+				if (!GetState()) {
+					ticking.Play();
+				} else {
+					ticking.Stop();
+				}
+			}
+			
 			SetState(!GetState());
 		}
 	}
