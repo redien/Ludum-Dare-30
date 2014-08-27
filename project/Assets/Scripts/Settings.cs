@@ -45,6 +45,12 @@ public class Settings : MonoBehaviour {
 			}
 			portal.SetState(shouldEnablePortal);
 		}
+		
+		if (Input.GetMouseButton(0)) {
+			if (!paused) {
+				Screen.lockCursor = true;
+			}
+		}
 	}
 	
 	public void GenerateState() {
@@ -116,7 +122,13 @@ public class Settings : MonoBehaviour {
 		yield return new WaitForSeconds(2.0f);
 		Resume();
 	}
-
+	
+	bool paused {
+		get {
+			return fader.fadeIn == false;
+		}
+	}
+	
 	public void Pause() {
 		Screen.lockCursor = false;
 		fader.fadeIn = false;
